@@ -1,0 +1,21 @@
+# Dependencies
+.node_modules
+yarn.lock
+package-lock.json
+
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+build/
+dist/
+*.egg-info/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key

@@ -1,0 +1,27 @@
+# FastAPI
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.1
+
+# Validation & Settings
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# Rate Limiting
+slowapi==0.1.9
+
+# HTTP Client
+httpx==0.28.1
+
+# Redis
+redis==5.2.1
+
+# Environment
+python-dotenv==1.0.1
+
+# SQLite async (development uchun)
+aiosqlite==0.21.0
