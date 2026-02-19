@@ -104,3 +104,20 @@ async def root():
 async def health_check():
     """Server sog'ligi tekshiruvi."""
     return {"status": "healthy", "environment": settings.APP_ENV}
+
+
+@app.post("/api/v1/sync", tags=["Sync - Sinxronizatsiya"])
+async def trigger_sync(
+    league_codes: list[str] | None = None,
+):
+    """
+    Ma'lumotlarni Football-Data.org dan sinxronlashtirish.
+    Body da league_codes berilmasa barcha qo'llab-quvvatlanadigan ligalar sinxronlanadi.
+    """
+    from app.services.football_data import football_data_service
+
+    stats = await football_data_service.sync_all(league_codes)
+    return {
+        "message": "Sinxronizatsiya tugadi!",
+        "stats": stats,
+    }

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     FOOTBALL_API_BASE_URL: str = "https://api.football-data.org/v4"
 
     # CORS
-    CORS_ORIGINS: str = '["http://localhost:3000"]'
+    CORS_ORIGINS: str = '["http://localhost:3000","http://localhost:5173"]'
 
     @property
     def cors_origins_list(self) -> List[str]:

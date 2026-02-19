@@ -9,6 +9,14 @@ export const apiClient = axios.create({
     },
 });
 
+// Barcha so'rovlar oxiriga trailing slash qo'shish (FastAPI 307 redirect oldini olish)
+apiClient.interceptors.request.use((config) => {
+    if (config.url && !config.url.endsWith('/') && !config.url.includes('?')) {
+        config.url += '/';
+    }
+    return config;
+});
+
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {

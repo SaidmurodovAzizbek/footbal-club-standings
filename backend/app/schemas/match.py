@@ -75,3 +75,10 @@ class MatchListResponse(BaseModel):
     away_team_id: int
     home_score: Optional[int] = None
     away_score: Optional[int] = None
+
+    # Qo'shimcha: jamoa nomlari va crest
+    home_team_name: Optional[str] = None
+    away_team_name: Optional[str] = None
+    home_team_crest: Optional[str] = None
+    away_team_crest: Optional[str] = None
+

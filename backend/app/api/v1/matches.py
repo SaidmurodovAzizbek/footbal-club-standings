@@ -39,7 +39,27 @@ async def get_matches(
 
     result = await db.execute(query)
     matches = result.scalars().all()
-    return matches
+
+    # Har bir o'yinga jamoa nomlarini qo'shish
+    enriched = []
+    for match in matches:
+        match_data = MatchListResponse.model_validate(match)
+
+        home = await db.execute(select(Club).where(Club.id == match.home_team_id))
+        home_club = home.scalar_one_or_none()
+        if home_club:
+            match_data.home_team_name = home_club.name_en
+            match_data.home_team_crest = home_club.crest_local or home_club.crest_url
+
+        away = await db.execute(select(Club).where(Club.id == match.away_team_id))
+        away_club = away.scalar_one_or_none()
+        if away_club:
+            match_data.away_team_name = away_club.name_en
+            match_data.away_team_crest = away_club.crest_local or away_club.crest_url
+
+        enriched.append(match_data)
+
+    return enriched
 
 
 @router.get("/live", response_model=List[MatchResponse], summary="Jonli o'yinlar")
