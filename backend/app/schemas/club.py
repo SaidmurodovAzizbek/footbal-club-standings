@@ -13,6 +13,7 @@ class ClubBase(BaseModel):
     venue: Optional[str] = None
     website: Optional[str] = None
     club_colors: Optional[str] = None
+    coach_name: Optional[str] = None
 
 
 class ClubCreate(ClubBase):
@@ -37,6 +38,7 @@ class ClubUpdate(BaseModel):
     wiki_summary_en: Optional[str] = None
     wiki_summary_uz: Optional[str] = None
     club_colors: Optional[str] = None
+    coach_name: Optional[str] = None
 
 
 class ClubResponse(ClubBase):

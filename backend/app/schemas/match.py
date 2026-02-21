@@ -10,6 +10,7 @@ class MatchBase(BaseModel):
     utc_date: datetime
     home_team_id: int
     away_team_id: int
+    winner: Optional[str] = None
 
 
 class MatchCreate(MatchBase):
@@ -31,6 +32,7 @@ class MatchUpdate(BaseModel):
     group_name: Optional[str] = None
     referee: Optional[str] = None
     duration: Optional[str] = None
+    winner: Optional[str] = None
 
 
 class MatchResponse(BaseModel):
@@ -53,6 +55,7 @@ class MatchResponse(BaseModel):
     group_name: Optional[str] = None
     referee: Optional[str] = None
     duration: Optional[str] = None
+    winner: Optional[str] = None
 
     # Qo'shimcha maydonlar (API dan qaytariladi)
     home_team_name: Optional[str] = None
@@ -75,6 +78,7 @@ class MatchListResponse(BaseModel):
     away_team_id: int
     home_score: Optional[int] = None
     away_score: Optional[int] = None
+    winner: Optional[str] = None
 
     # Qo'shimcha: jamoa nomlari va crest
     home_team_name: Optional[str] = None

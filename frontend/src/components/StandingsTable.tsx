@@ -1,7 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface Standing {
     position: number;
+    club_id: number;
     club_name: string;
     club_crest: string | null;
     played: number;
@@ -53,16 +55,16 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ standings }) => {
                                     {team.position}
                                 </td>
                                 <td className="px-4 py-3">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 flex-shrink-0 bg-white dark:bg-gray-700 p-1 rounded-full border border-gray-100 dark:border-gray-600">
+                                    <Link to={`/club/${team.club_id}`} className="flex items-center space-x-3 group cursor-pointer block">
+                                        <div className="w-8 h-8 flex-shrink-0 bg-white dark:bg-gray-700 p-1 rounded-full border border-gray-100 dark:border-gray-600 group-hover:border-emerald-500 transition-colors">
                                             {team.club_crest ? (
                                                 <img src={team.club_crest} alt={team.club_name} className="w-full h-full object-contain" />
                                             ) : (
                                                 <div className="w-full h-full bg-gray-200 rounded-full"></div>
                                             )}
                                         </div>
-                                        <span className="font-semibold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-xs">{team.club_name}</span>
-                                    </div>
+                                        <span className="font-semibold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{team.club_name}</span>
+                                    </Link>
                                 </td>
                                 <td className="px-4 py-3 text-center">{team.played}</td>
                                 <td className="px-4 py-3 text-center hidden sm:table-cell">{team.won}</td>

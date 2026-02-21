@@ -28,6 +28,7 @@ async def get_matches(
     league_id: Optional[int] = Query(None, description="Liga bo'yicha filtrlash"),
     matchday: Optional[int] = Query(None, description="O'yin kuni raqami"),
     status: Optional[str] = Query(None, description="O'yin holati: SCHEDULED, IN_PLAY, FINISHED"),
+    club_id: Optional[int] = Query(None, description="Klub qatnashgan o'yinlarni olish"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -37,6 +38,7 @@ async def get_matches(
     - **league_id**: Liga bo'yicha filtrlash
     - **matchday**: O'yin kuni raqami
     - **status**: O'yin holati bo'yicha filtrlash
+    - **club_id**: Klub ishtirokidagi o'yinlar
     """
     query = select(Match).options(
         selectinload(Match.home_team),
@@ -45,6 +47,8 @@ async def get_matches(
 
     if league_id is not None:
         query = query.where(Match.league_id == league_id)
+    if club_id is not None:
+        query = query.where((Match.home_team_id == club_id) | (Match.away_team_id == club_id))
     if matchday is not None:
         query = query.where(Match.matchday == matchday)
     if status:

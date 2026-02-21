@@ -9,6 +9,7 @@ import os
 
 from app.core.config import settings
 from app.core.security import limiter
+from app.core.scheduler import create_scheduler
 from app.api.v1.router import api_v1_router
 
 # Logging sozlash
@@ -35,13 +36,21 @@ async def lifespan(app: FastAPI):
     os.makedirs(os.path.join(settings.MEDIA_DIR, "emblems"), exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_DIR, "stadiums"), exist_ok=True)
 
+    # Scheduler'ni ishga tushirish
+    scheduler = create_scheduler()
+    scheduler.start()
+    app.state.scheduler = scheduler
+    logger.info("✅ APScheduler ishga tushdi!")
+
     logger.info("✅ Server muvaffaqiyatli ishga tushdi!")
 
     yield
 
     # === SHUTDOWN ===
     logger.info("🛑 Server to'xtatilmoqda...")
-
+    if hasattr(app.state, "scheduler"):
+        app.state.scheduler.shutdown()
+        logger.info("🛑 APScheduler to'xtatildi!")
 
 # FastAPI app yaratish
 app = FastAPI(

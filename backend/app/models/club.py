@@ -44,6 +44,9 @@ class Club(Base, TimestampMixin):
     # Rang
     club_colors: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, comment="Klub ranglari")
 
+    # Murabbiy
+    coach_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="Bosh murabbiy ismi")
+
     # Munosabatlar
     league: Mapped["League"] = relationship("League", back_populates="clubs")
     home_matches: Mapped[List["Match"]] = relationship("Match", back_populates="home_team", foreign_keys="Match.home_team_id", lazy="selectin")

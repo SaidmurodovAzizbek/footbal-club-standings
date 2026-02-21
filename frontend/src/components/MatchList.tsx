@@ -1,12 +1,15 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Match {
     id: number;
     utc_date: string;
     status: string;
     matchday: number;
+    home_team_id: number;
     home_team_name: string;
+    away_team_id: number;
     away_team_name: string;
     home_team_crest: string | null;
     away_team_crest: string | null;
@@ -71,16 +74,18 @@ const MatchList: React.FC<MatchListProps> = ({ matches }) => {
 
                     <div className="flex items-center justify-between">
                         {/* Home Team */}
-                        <div className="flex-1 flex items-center justify-end space-x-3 text-right">
-                            <span className="font-semibold text-gray-900 dark:text-white hidden sm:block">{match.home_team_name}</span>
-                            <div className="w-10 h-10 p-1">
-                                {match.home_team_crest ? (
-                                    <img src={match.home_team_crest} alt={match.home_team_name} className="w-full h-full object-contain" />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 rounded-full"></div>
-                                )}
-                            </div>
-                            <span className="font-semibold text-gray-900 dark:text-white sm:hidden">{match.home_team_name.slice(0, 3).toUpperCase()}</span>
+                        <div className="flex-1 flex justify-end">
+                            <Link to={`/club/${match.home_team_id}`} className="group flex items-center space-x-3 text-right">
+                                <span className="font-semibold text-gray-900 dark:text-white hidden sm:block group-hover:text-emerald-500 transition-colors">{match.home_team_name}</span>
+                                <div className="w-10 h-10 p-1 bg-gray-50 dark:bg-gray-700/50 rounded-full border border-gray-100 dark:border-gray-600 group-hover:border-emerald-500 transition-colors">
+                                    {match.home_team_crest ? (
+                                        <img src={match.home_team_crest} alt={match.home_team_name} className="w-full h-full object-contain" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 rounded-full"></div>
+                                    )}
+                                </div>
+                                <span className="font-semibold text-gray-900 dark:text-white sm:hidden group-hover:text-emerald-500 transition-colors">{match.home_team_name.slice(0, 3).toUpperCase()}</span>
+                            </Link>
                         </div>
 
                         {/* Score / VS */}
@@ -97,16 +102,18 @@ const MatchList: React.FC<MatchListProps> = ({ matches }) => {
                         </div>
 
                         {/* Away Team */}
-                        <div className="flex-1 flex items-center justify-start space-x-3 text-left">
-                            <div className="w-10 h-10 p-1">
-                                {match.away_team_crest ? (
-                                    <img src={match.away_team_crest} alt={match.away_team_name} className="w-full h-full object-contain" />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 rounded-full"></div>
-                                )}
-                            </div>
-                            <span className="font-semibold text-gray-900 dark:text-white hidden sm:block">{match.away_team_name}</span>
-                            <span className="font-semibold text-gray-900 dark:text-white sm:hidden">{match.away_team_name.slice(0, 3).toUpperCase()}</span>
+                        <div className="flex-1 flex justify-start">
+                            <Link to={`/club/${match.away_team_id}`} className="group flex items-center space-x-3 text-left">
+                                <div className="w-10 h-10 p-1 bg-gray-50 dark:bg-gray-700/50 rounded-full border border-gray-100 dark:border-gray-600 group-hover:border-emerald-500 transition-colors">
+                                    {match.away_team_crest ? (
+                                        <img src={match.away_team_crest} alt={match.away_team_name} className="w-full h-full object-contain" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 rounded-full"></div>
+                                    )}
+                                </div>
+                                <span className="font-semibold text-gray-900 dark:text-white hidden sm:block group-hover:text-emerald-500 transition-colors">{match.away_team_name}</span>
+                                <span className="font-semibold text-gray-900 dark:text-white sm:hidden group-hover:text-emerald-500 transition-colors">{match.away_team_name.slice(0, 3).toUpperCase()}</span>
+                            </Link>
                         </div>
                     </div>
                 </div>

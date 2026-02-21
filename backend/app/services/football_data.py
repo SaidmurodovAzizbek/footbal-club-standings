@@ -387,6 +387,7 @@ class FootballDataService:
                 "website": api_data.get("website"),
                 "address": api_data.get("address"),
                 "club_colors": api_data.get("clubColors"),
+                "coach_name": api_data.get("coach", {}).get("name"),
             }
 
             if club:
@@ -485,6 +486,7 @@ class FootballDataService:
                 "stage": api_data.get("stage"),
                 "group_name": api_data.get("group"),
                 "duration": score.get("duration"),
+                "winner": score.get("winner"),
                 "referee": referee_name,
             }
 

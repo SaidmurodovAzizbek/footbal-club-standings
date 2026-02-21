@@ -38,6 +38,7 @@ class Match(Base, TimestampMixin):
     away_score: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, comment="Mehmon jamoasi gollari")
     home_score_ht: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, comment="Uy jamoasi gollari (1-taym)")
     away_score_ht: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, comment="Mehmon jamoasi gollari (1-taym)")
+    winner: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, comment="G'olib: HOME_TEAM, AWAY_TEAM yoki DRAW")
 
     # UCL uchun maxsus maydonlar
     stage: Mapped[Optional[str]] = mapped_column(
