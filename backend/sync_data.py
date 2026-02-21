@@ -45,6 +45,7 @@ async def main():
         print(f"  👥 Jamoalar: {stats.get('clubs', 0)}")
         print(f"  ⚽ O'yinlar: {stats.get('matches', 0)}")
         print(f"  📊 Jadval:   {stats.get('standings', 0)}")
+        print(f"  📚 Wiki:     {stats.get('wiki', 0)}")
         print(f"  ⏱️  Vaqt:     {stats.get('elapsed_seconds', 0)}s")
         if stats.get("errors"):
             print(f"  ❌ Xatolar:")

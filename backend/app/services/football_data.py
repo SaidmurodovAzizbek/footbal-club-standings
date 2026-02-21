@@ -24,6 +24,7 @@ from app.models.league import League
 from app.models.club import Club
 from app.models.match import Match
 from app.models.standing import Standing
+from app.services.wikipedia_api import wikipedia_api
 
 logger = logging.getLogger(__name__)
 
@@ -652,6 +653,69 @@ class FootballDataService:
         logger.info(f"✅ {len(synced)} ta jamoa sinxronlashtirildi: {league_code}")
         return synced
 
+    async def sync_wikipedia(self, league_code: str | None = None) -> int:
+        """
+        Klublar uchun Wikipedia summary'larini olish va bazaga saqlash.
+        Faqat wiki_summary_en bo'sh bo'lgan klublar uchun ishlaydi.
+
+        Args:
+            league_code: Liga kodi. None bo'lsa barcha klublar.
+
+        Returns:
+            Yangilangan klublar soni
+        """
+        logger.info(f"📚 WIKIPEDIA SINXRONIZATSIYASI BOSHLANDI")
+        updated_count = 0
+
+        async with async_session() as session:
+            query = select(Club).where(Club.wiki_summary_en.is_(None))
+
+            if league_code:
+                league_result = await session.execute(
+                    select(League).where(League.code == league_code)
+                )
+                league = league_result.scalar_one_or_none()
+                if league:
+                    query = query.where(Club.league_id == league.id)
+
+            result = await session.execute(query)
+            clubs = result.scalars().all()
+
+            logger.info(f"📚 {len(clubs)} ta klub uchun Wikipedia ma'lumotlari olinadi")
+
+            for club in clubs:
+                try:
+                    # Inglizcha summary
+                    summary_en = await wikipedia_api.get_club_summary(
+                        club.name_en, lang="en"
+                    )
+                    if summary_en:
+                        club.wiki_summary_en = summary_en
+                        logger.debug(f"📖 Wiki EN: {club.name_en}")
+
+                    # O'zbekcha summary
+                    summary_uz = await wikipedia_api.get_club_summary(
+                        club.name_en, lang="uz"
+                    )
+                    if summary_uz:
+                        club.wiki_summary_uz = summary_uz
+                        logger.debug(f"📖 Wiki UZ: {club.name_en}")
+
+                    if summary_en or summary_uz:
+                        updated_count += 1
+
+                    # Wikipedia API uchun kichik pauza
+                    await asyncio.sleep(0.5)
+
+                except Exception as e:
+                    logger.warning(f"⚠️ Wiki xato ({club.name_en}): {e}")
+                    continue
+
+            await session.commit()
+
+        logger.info(f"✅ {updated_count} ta klub Wiki bilan yangilandi")
+        return updated_count
+
     async def sync_matches(
         self, league_code: str, season: int | None = None
     ) -> list[Match]:
@@ -759,6 +823,7 @@ class FootballDataService:
         Tartib:
           1. Ligalar
           2. Har bir liga uchun: Jamoalar → O'yinlar → Jadval
+          3. Wikipedia ma'lumotlari
 
         Args:
             league_codes: Liga kodlari ['PL','PD',...]. None bo'lsa barchasi.
@@ -779,6 +844,7 @@ class FootballDataService:
             "clubs": 0,
             "matches": 0,
             "standings": 0,
+            "wiki": 0,
             "errors": [],
         }
 
@@ -815,6 +881,14 @@ class FootballDataService:
             except Exception as e:
                 logger.error(f"❌ Jadval sync xatosi ({code}): {e}")
                 stats["errors"].append(f"Jadval ({code}): {e}")
+
+        # 3-qadam: Wikipedia ma'lumotlari (faqat bo'sh bo'lganlar uchun)
+        try:
+            wiki_count = await self.sync_wikipedia()
+            stats["wiki"] = wiki_count
+        except Exception as e:
+            logger.error(f"❌ Wikipedia sync xatosi: {e}")
+            stats["errors"].append(f"Wikipedia: {e}")
 
         elapsed = time.monotonic() - start_time
         stats["elapsed_seconds"] = round(elapsed, 1)
