@@ -1,11 +1,11 @@
 """
-FootballDataService - Football-Data.org API dan ma'lumotlarni olish va bazaga sinxronlashtirish.
+FootballDataService - Fetching and synchronizing data from Football-Data.org API.
 
-Bu servis:
-  1. Async HTTP (httpx) orqali tashqi API ga so'rov yuboradi
-  2. Rate-limiting (10 req/min) ni hurmat qiladi (adaptive sleep + retry)
-  3. Upsert (Update or Create) mantiq bilan ma'lumotlarni DB ga saqlaydi
-  4. Liga, Klub, O'yin va Turni jadval ma'lumotlarini sinxronlashtiradi
+This service:
+  1. Sends requests to external API via Async HTTP (httpx)
+  2. Respects rate-limiting (10 req/min) with adaptive sleep and retry mechanisms
+  3. Saves data to DB using Upsert (Update or Create) logic
+  4. Synchronizes League, Club, Match, and Standings data
 """
 
 import asyncio
@@ -31,12 +31,12 @@ logger = logging.getLogger(__name__)
 
 class FootballDataService:
     """
-    Football-Data.org API bilan ishlash va bazaga sinxronlashtirish uchun to'liq servis.
+    Complete service to interact with Football-Data.org API and synchronize data to DB.
 
-    Xususiyatlar:
-      - Adaptive rate-limiting: har bir so'rov orasida 6.5s kutish (10 req/min)
-      - Retry mantiq: 429 xato bo'lsa qayta urinish (max 3 marta)
-      - Upsert: external_id bo'yicha bormi tekshirib, kerak bo'lsa yangilaydi
+    Features:
+      - Adaptive rate-limiting: waits ~6.5s between requests (10 req/min)
+      - Retry logic: attempts retry on 429/5xx errors (max 3 times)
+      - Upsert: checks existence by external_id and updates if necessary
     """
 
     # Football-Data.org bepul rejalari uchun liga kodlari
@@ -60,14 +60,14 @@ class FootballDataService:
         self._min_interval = 6.5  # 60s / 10 = 6s, + 0.5s xavfsizlik
 
     # ──────────────────────────────────────────────
-    #  HTTP Layer - Rate Limiting + Retry
+    # HTTP Layer - Rate Limiting + Retry
     # ──────────────────────────────────────────────
 
     async def _wait_for_rate_limit(self) -> None:
         """
-        Rate-limit cheklovini kutish.
-        Oxirgi 60 sekund ichida 10 tadan ko'p so'rov yuborilgan bo'lsa,
-        yetarli vaqt o'tguncha kutadi.
+        Wait for rate-limit constraints.
+        If more than 10 requests were sent in the last 60 seconds,
+        it waits until sufficient time has passed.
         """
         now = time.monotonic()
 
@@ -79,12 +79,12 @@ class FootballDataService:
         # Agar 60s ichida 9 ta yoki undan ko'p so'rov bo'lsa, kutamiz
         if len(self._request_timestamps) >= self._max_requests_per_minute - 1:
             oldest = self._request_timestamps[0]
-            wait_time = 60.0 - (now - oldest) + 1.0  # +1s xavfsizlik
+            wait_time = 60.0 - (now - oldest) + 1.0  # +1s explicit safety buffer
             if wait_time > 0:
-                logger.info(f"⏳ Rate-limit kutilmoqda: {wait_time:.1f}s...")
+                logger.info(f"Rate-limit pause: waiting {wait_time:.1f}s...")
                 await asyncio.sleep(wait_time)
         else:
-            # Minimal interval (so'rovlar orasida)
+            # Enforce minimum interval between requests
             if self._request_timestamps:
                 last = self._request_timestamps[-1]
                 elapsed = now - last
@@ -100,15 +100,15 @@ class FootballDataService:
         max_retries: int = 3,
     ) -> Optional[dict[str, Any]]:
         """
-        API ga so'rov yuborish - rate-limit + retry mantiq bilan.
+        Send API request using rate-limiting and retry logic.
 
         Args:
-            endpoint: API yo'li (masalan, '/competitions/PL')
-            params: Query parametrlar
-            max_retries: Qayta urinishlar soni (429/5xx xatolar uchun)
+            endpoint: API path (e.g., '/competitions/PL')
+            params: Query parameters
+            max_retries: Number of retries for 429/5xx errors
 
         Returns:
-            API javob dict yoki None (xato bo'lsa)
+            API response dict or None on failure
         """
         url = f"{self.base_url}{endpoint}"
 

@@ -8,21 +8,21 @@ from app.api.deps import get_db
 from app.models.standing import Standing
 from app.schemas.standing import StandingResponse
 
-router = APIRouter(prefix="/standings", tags=["Standings - Turni jadval"])
+router = APIRouter(prefix="/standings", tags=["Standings"])
 
 
-@router.get("/league/{league_id}", response_model=List[StandingResponse], summary="Liga jadvali")
+@router.get("/league/{league_id}", response_model=List[StandingResponse], summary="League standings")
 async def get_standings_by_league(
     league_id: int,
-    season: Optional[int] = Query(None, description="Mavsum yili (masalan: 2024)"),
-    lang: str = Query("en", description="Til: 'en' yoki 'uz'"),
+    season: Optional[int] = Query(None, description="Season year (e.g. 2024)"),
+    lang: str = Query("en", description="Language: 'en' or 'uz'"),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Liga turni jadvalini qaytaradi.
-    - **league_id**: Liga ID
-    - **season**: Mavsum yili (default: eng oxirgi mavsum)
-    - **lang**: Javob tili (en/uz)
+    Returns league standings.
+    - **league_id**: League ID
+    - **season**: Season year (default: latest season)
+    - **lang**: Response language (en/uz)
     """
     query = (
         select(Standing)
@@ -38,7 +38,7 @@ async def get_standings_by_league(
     result = await db.execute(query)
     standings = result.scalars().all()
 
-    # Har bir standingga klub ma'lumotlarini qo'shish (relationship orqali)
+    # Enrich each standing with club data (via relationship)
     enriched = []
     for standing in standings:
         standing_data = StandingResponse.model_validate(standing)

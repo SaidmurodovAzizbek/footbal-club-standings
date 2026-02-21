@@ -8,23 +8,23 @@ from app.api.deps import get_db
 from app.models.club import Club
 from app.schemas.club import ClubResponse, ClubListResponse
 
-router = APIRouter(prefix="/clubs", tags=["Clubs - Klublar"])
+router = APIRouter(prefix="/clubs", tags=["Clubs"])
 
 
-@router.get("/", response_model=List[ClubListResponse], summary="Barcha klublar ro'yxati")
+@router.get("/", response_model=List[ClubListResponse], summary="List of all clubs")
 async def get_clubs(
-    league_id: Optional[int] = Query(None, description="Liga bo'yicha filtrlash"),
-    search: Optional[str] = Query(None, description="Klub nomi bo'yicha qidirish"),
-    lang: str = Query("en", description="Til: 'en' yoki 'uz'"),
-    skip: int = Query(0, ge=0, description="O'tkazib yuborish"),
-    limit: int = Query(50, ge=1, le=100, description="Cheklov"),
+    league_id: Optional[int] = Query(None, description="Filter by league"),
+    search: Optional[str] = Query(None, description="Search by club name"),
+    lang: str = Query("en", description="Language: 'en' or 'uz'"),
+    skip: int = Query(0, ge=0, description="Skip count"),
+    limit: int = Query(50, ge=1, le=100, description="Limit count"),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Klublar ro'yxatini qaytaradi.
-    - **league_id**: Liga bo'yicha filtrlash
-    - **search**: Klub nomi bo'yicha qidirish
-    - **lang**: Javob tili (en/uz)
+    Returns a list of clubs.
+    - **league_id**: Filter by league
+    - **search**: Search by club name
+    - **lang**: Response language (en/uz)
     """
     query = select(Club)
 
@@ -43,19 +43,19 @@ async def get_clubs(
     return clubs
 
 
-@router.get("/{club_id}", response_model=ClubResponse, summary="Klub tafsilotlari")
+@router.get("/{club_id}", response_model=ClubResponse, summary="Club details")
 async def get_club(
     club_id: int,
-    lang: str = Query("en", description="Til: 'en' yoki 'uz'"),
+    lang: str = Query("en", description="Language: 'en' or 'uz'"),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Klub tafsilotlarini ID bo'yicha qaytaradi (tarix, stadion, Wikipedia ma'lumotlari bilan).
+    Returns club details by ID (with history, stadium, Wikipedia data).
     """
     result = await db.execute(select(Club).where(Club.id == club_id))
     club = result.scalar_one_or_none()
 
     if not club:
-        raise HTTPException(status_code=404, detail="Klub topilmadi")
+        raise HTTPException(status_code=404, detail="Club not found")
 
     return ClubResponse.model_validate(club)

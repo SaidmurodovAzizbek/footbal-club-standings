@@ -7,19 +7,19 @@ from app.api.deps import get_db
 from app.models.league import League
 from app.schemas.league import LeagueResponse, LeagueListResponse
 
-router = APIRouter(prefix="/leagues", tags=["Leagues - Ligalar"])
+router = APIRouter(prefix="/leagues", tags=["Leagues"])
 
 
-@router.get("/", response_model=List[LeagueListResponse], summary="Barcha ligalar ro'yxati")
+@router.get("/", response_model=List[LeagueListResponse], summary="List of all leagues")
 async def get_leagues(
-    is_active: Optional[bool] = Query(None, description="Faol ligalarni filtrlash"),
-    lang: str = Query("en", description="Til: 'en' yoki 'uz'"),
+    is_active: Optional[bool] = Query(None, description="Filter active leagues"),
+    lang: str = Query("en", description="Language: 'en' or 'uz'"),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Barcha ligalar ro'yxatini qaytaradi.
-    - **is_active**: True bo'lsa faqat faol ligalar
-    - **lang**: Javob tili (en/uz)
+    Returns a list of all leagues.
+    - **is_active**: True for active leagues only
+    - **lang**: Response language (en/uz)
     """
     query = select(League)
     if is_active is not None:
@@ -31,22 +31,22 @@ async def get_leagues(
     return leagues
 
 
-@router.get("/{league_id}", response_model=LeagueResponse, summary="Liga tafsilotlari")
+@router.get("/{league_id}", response_model=LeagueResponse, summary="League details")
 async def get_league(
     league_id: int,
-    lang: str = Query("en", description="Til: 'en' yoki 'uz'"),
+    lang: str = Query("en", description="Language: 'en' or 'uz'"),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Liga tafsilotlarini ID bo'yicha qaytaradi.
+    Returns league details by ID.
     """
     result = await db.execute(select(League).where(League.id == league_id))
     league = result.scalar_one_or_none()
 
     if not league:
-        raise HTTPException(status_code=404, detail="Liga topilmadi")
+        raise HTTPException(status_code=404, detail="League not found")
 
-    # Lokalizatsiya qilingan nomni qo'shish
+    # Add localized name
     response_data = LeagueResponse.model_validate(league)
     response_data.name = league.get_name(lang)
     return response_data

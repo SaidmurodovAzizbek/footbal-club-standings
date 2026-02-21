@@ -8,11 +8,11 @@ from app.api.deps import get_db
 from app.models.match import Match
 from app.schemas.match import MatchResponse, MatchListResponse
 
-router = APIRouter(prefix="/matches", tags=["Matches - O'yinlar"])
+router = APIRouter(prefix="/matches", tags=["Matches"])
 
 
 def _enrich_match(match: Match, schema_class):
-    """Match ob'yektiga jamoa ma'lumotlarini qo'shish (relationship orqali)."""
+    """Enrich Match object with team data (via relationship)."""
     match_data = schema_class.model_validate(match)
     if match.home_team:
         match_data.home_team_name = match.home_team.name_en
@@ -23,22 +23,22 @@ def _enrich_match(match: Match, schema_class):
     return match_data
 
 
-@router.get("/", response_model=List[MatchListResponse], summary="O'yinlar ro'yxati")
+@router.get("/", response_model=List[MatchListResponse], summary="List of matches")
 async def get_matches(
-    league_id: Optional[int] = Query(None, description="Liga bo'yicha filtrlash"),
-    matchday: Optional[int] = Query(None, description="O'yin kuni raqami"),
-    status: Optional[str] = Query(None, description="O'yin holati: SCHEDULED, IN_PLAY, FINISHED"),
-    club_id: Optional[int] = Query(None, description="Klub qatnashgan o'yinlarni olish"),
+    league_id: Optional[int] = Query(None, description="Filter by league"),
+    matchday: Optional[int] = Query(None, description="Matchday number"),
+    status: Optional[str] = Query(None, description="Filter by match status: SCHEDULED, IN_PLAY, FINISHED"),
+    club_id: Optional[int] = Query(None, description="Get games participated by club"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    O'yinlar ro'yxatini qaytaradi.
-    - **league_id**: Liga bo'yicha filtrlash
-    - **matchday**: O'yin kuni raqami
-    - **status**: O'yin holati bo'yicha filtrlash
-    - **club_id**: Klub ishtirokidagi o'yinlar
+    Returns a list of matches.
+    - **league_id**: Filter by league
+    - **matchday**: Matchday number
+    - **status**: Filter by match status
+    - **club_id**: Get games participated by club
     """
     query = select(Match).options(
         selectinload(Match.home_team),
@@ -62,12 +62,12 @@ async def get_matches(
     return [_enrich_match(m, MatchListResponse) for m in matches]
 
 
-@router.get("/live", response_model=List[MatchResponse], summary="Jonli o'yinlar")
+@router.get("/live", response_model=List[MatchResponse], summary="Live matches")
 async def get_live_matches(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Hozir o'ynalayotgan jonli o'yinlarni qaytaradi.
+    Returns currently playing live matches.
     """
     query = (
         select(Match)
@@ -83,13 +83,13 @@ async def get_live_matches(
     return [_enrich_match(m, MatchResponse) for m in matches]
 
 
-@router.get("/{match_id}", response_model=MatchResponse, summary="O'yin tafsilotlari")
+@router.get("/{match_id}", response_model=MatchResponse, summary="Match details")
 async def get_match(
     match_id: int,
     db: AsyncSession = Depends(get_db),
 ):
     """
-    O'yin tafsilotlarini ID bo'yicha qaytaradi.
+    Returns match details by ID.
     """
     result = await db.execute(
         select(Match)
@@ -102,6 +102,6 @@ async def get_match(
     match = result.scalar_one_or_none()
 
     if not match:
-        raise HTTPException(status_code=404, detail="O'yin topilmadi")
+        raise HTTPException(status_code=404, detail="Match not found")
 
     return _enrich_match(match, MatchResponse)

@@ -7,15 +7,15 @@ logger = logging.getLogger(__name__)
 
 class WikipediaAPIClient:
     """
-    Wikipedia API bilan ishlash uchun klient.
-    Klub tarixi va stadion ma'lumotlarini olish uchun ishlatiladi.
+    Client for Wikipedia API.
+    Used to fetch club history and stadium information.
     """
 
     BASE_URL = "https://en.wikipedia.org/api/rest_v1"
     UZ_BASE_URL = "https://uz.wikipedia.org/api/rest_v1"
 
     async def _fetch_summary(self, title: str, lang: str = "en") -> Optional[Dict[str, Any]]:
-        """Wikipedia sahifa xulosasini olish."""
+        """Get Wikipedia page summary."""
         base = self.UZ_BASE_URL if lang == "uz" else self.BASE_URL
         url = f"{base}/page/summary/{title}"
         try:
@@ -23,18 +23,18 @@ class WikipediaAPIClient:
                 response = await client.get(url)
                 if response.status_code == 200:
                     return response.json()
-                logger.warning(f"Wikipedia sahifa topilmadi: {title} ({lang})")
+                logger.warning(f"Wikipedia page not found: {title} ({lang})")
                 return None
         except httpx.RequestError as e:
-            logger.error(f"Wikipedia so'rov xatosi: {e}")
+            logger.error(f"Wikipedia request error: {e}")
             return None
 
     async def get_club_summary(self, club_name: str, lang: str = "en") -> Optional[str]:
         """
-        Klub haqida qisqa ma'lumot olish.
-        Masalan: 'Manchester_United_F.C.' -> qisqa tavsif
+        Get a short summary about the club.
+        For example: 'Manchester_United_F.C.' -> summary description
         """
-        # Wikipedia sarlavhasi uchun nomdagi bo'shliqlarni almashtirish
+        # Replace spaces in the name for the Wikipedia title
         wiki_title = club_name.replace(" ", "_")
         data = await self._fetch_summary(wiki_title, lang)
         if data and "extract" in data:
@@ -42,7 +42,7 @@ class WikipediaAPIClient:
         return None
 
     async def get_club_image(self, club_name: str) -> Optional[str]:
-        """Klub Wikipedia sahifasidagi asosiy rasmni URL sini olish."""
+        """Get the main image URL from the club's Wikipedia page."""
         wiki_title = club_name.replace(" ", "_")
         data = await self._fetch_summary(wiki_title)
         if data and "thumbnail" in data:
@@ -50,7 +50,7 @@ class WikipediaAPIClient:
         return None
 
     async def get_stadium_info(self, stadium_name: str, lang: str = "en") -> Optional[Dict[str, Any]]:
-        """Stadion haqida ma'lumot olish."""
+        """Get stadium information."""
         wiki_title = stadium_name.replace(" ", "_")
         data = await self._fetch_summary(wiki_title, lang)
         if data:

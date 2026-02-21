@@ -9,7 +9,7 @@ export const apiClient = axios.create({
     },
 });
 
-// Barcha so'rovlar oxiriga trailing slash qo'shish (FastAPI 307 redirect oldini olish)
+// Add trailing slash to all requests (prevents FastAPI 307 redirect)
 apiClient.interceptors.request.use((config) => {
     if (config.url && !config.url.endsWith('/') && !config.url.includes('?')) {
         config.url += '/';
