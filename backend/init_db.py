@@ -5,12 +5,20 @@ from app.models.base import Base
 # Import all models to ensure they are registered with Base.metadata
 from app.models import League, Club, Match, Standing
 
+from app.core.database import get_database_url
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def init_db():
-    # URL encode the "@" inside the password so SQLAlchemy doesn't think the host starts at '0514'
-    db_url = "postgresql://postgres:FCSPASSWORDSTRONG%400514@db.qanhmbzzauwowtyhnpfj.supabase.co:5432/postgres"
+    # Parolni sirtdan yuklaymiz (hech qachon hardcode qilinmaydi)
+    db_url = get_database_url()
+    
+    # aiosqlite or PostgreSQL+asyncpg driver used dynamically, 
+    # but create_engine requires sync driver so we adjust just for this script if it's postgres
+    if db_url and db_url.startswith("postgresql+asyncpg://"):
+        db_url = db_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+        
     logger.info(f"Connecting to database: {db_url[:30]}...")
     
     # Create an isolated synchronous engine for this script

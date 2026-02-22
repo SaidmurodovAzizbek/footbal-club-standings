@@ -17,7 +17,11 @@ from app.models import League, Club, Match, Standing  # noqa: F401
 config = context.config
 
 # Database URL ni sozlamalardan (Supabase bo'lsa uni) olish
-config.set_main_option("sqlalchemy.url", get_database_url())
+db_url = get_database_url()
+if db_url:
+    # Configparser interpolatsiyasi buzilmasligi uchun % belgisini %% ga o'zgartiramiz
+    db_url = db_url.replace("%", "%%")
+config.set_main_option("sqlalchemy.url", str(db_url))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
