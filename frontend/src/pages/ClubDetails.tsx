@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import MatchList from '../components/MatchList';
+import StandingsTable from '../components/StandingsTable';
 import { MapPin, CalendarDays, ExternalLink, ArrowLeft, UserCircle2 } from 'lucide-react';
 
 interface ClubInfo {
     id: number;
     external_id: number;
+    league_id: number;
     name_en: string;
     short_name: string | null;
     tla: string | null;
@@ -25,6 +27,7 @@ interface ClubInfo {
 const ClubDetails = () => {
     const { id } = useParams<{ id: string }>();
     const [club, setClub] = useState<ClubInfo | null>(null);
+    const [standings, setStandings] = useState<any[]>([]);
     const [matches, setMatches] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -37,9 +40,28 @@ const ClubDetails = () => {
                 const clubRes = await apiClient.get<ClubInfo>(`/clubs/${id}`);
                 setClub(clubRes.data);
 
-                // Fetch Recent/Upcoming Matches for this club
-                const matchesRes = await apiClient.get(`/matches?club_id=${id}&limit=10`);
-                setMatches(matchesRes.data);
+                // Fetch Standings
+                if (clubRes.data.league_id) {
+                    const standingsRes = await apiClient.get(`/standings/league/${clubRes.data.league_id}`);
+                    setStandings(standingsRes.data);
+                }
+
+                // Fetch Matches
+                const matchesRes = await apiClient.get(`/matches?club_id=${id}&limit=100`);
+                const allMatches = matchesRes.data;
+                const upcoming = allMatches.filter((m: any) => ['SCHEDULED', 'TIMED'].includes(m.status));
+
+                if (upcoming.length > 0) {
+                    if (upcoming.length >= 5) {
+                        setMatches(upcoming.slice(0, 5));
+                    } else {
+                        setMatches(upcoming);
+                    }
+                } else {
+                    // If no upcoming matches, show the last 5 finished matches
+                    const finished = allMatches.filter((m: any) => m.status === 'FINISHED');
+                    setMatches(finished.slice(-5).reverse());
+                }
             } catch (err) {
                 console.error(err);
                 setError('Klub ma\'lumotlari yuklanmadi.');
@@ -204,6 +226,23 @@ const ClubDetails = () => {
                         ) : (
                             <div className="text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
                                 <p className="text-gray-500">O'yinlar topilmadi.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Standings Table Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div className="flex items-center justify-between mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Turnir Jadvali</h3>
+                        </div>
+
+                        {standings.length > 0 ? (
+                            <div className="overflow-x-auto -mx-6 px-6">
+                                <StandingsTable standings={standings} highlightClubId={Number(id)} />
+                            </div>
+                        ) : (
+                            <div className="text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+                                <p className="text-gray-500">Jadval yuklanmadi.</p>
                             </div>
                         )}
                     </div>

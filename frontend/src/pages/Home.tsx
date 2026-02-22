@@ -96,16 +96,6 @@ const Home = () => {
                             Sevimli ligangizning barcha o'yinlarini shu yerda kuzatib boring.
                             Sevimli jamoangizning barcha o'yinlarini shu yerda kuzatib boring.
                         </p>
-                        <div className="flex flex-wrap items-center gap-4 pt-4">
-                            <Link to="/matches" className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-all shadow-lg hover:shadow-emerald-500/30 flex items-center space-x-2">
-                                <Calendar className="w-5 h-5" />
-                                <span>Barcha o'yinlarni ko'rish</span>
-                            </Link>
-                            <a href="#leagues" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-xl border border-gray-600 transition-all flex items-center space-x-2">
-                                <Trophy className="w-5 h-5" />
-                                <span>Ligalar ro'yxati</span>
-                            </a>
-                        </div>
                     </div>
 
                     <div className="w-full md:w-1/3 flex flex-col gap-4">
@@ -171,27 +161,27 @@ const Home = () => {
                                 className="group relative w-full h-[300px] sm:h-[250px] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col justify-end"
                             >
                                 {/* Background Image with Parallax subtle effect on hover */}
-                                <div className="absolute inset-0 w-full h-full">
+                                <div className="absolute inset-0 w-full h-full bg-gray-900">
                                     <img
                                         src={meta.bgImage}
                                         alt={meta.title}
-                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out opacity-40 group-hover:opacity-50"
                                     />
                                     {/* Overlay Gradient for readability */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
-                                    <div className="absolute inset-0 bg-emerald-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f18] via-[#0a0f18]/80 to-transparent"></div>
+                                    <div className="absolute inset-0 bg-emerald-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 </div>
 
                                 {/* Content overlaid on image */}
                                 <div className="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 h-full">
                                     <div className="flex-1">
                                         <div className="flex items-center space-x-4 mb-3">
-                                            {/* League Logo isolated within a glassmorphism circle */}
-                                            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-2 shadow-xl flex items-center justify-center group-hover:-translate-y-1 transition-transform">
+                                            {/* League Logo isolated within a white rounded container for visibility */}
+                                            <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-xl flex items-center justify-center group-hover:-translate-y-1 transition-transform">
                                                 <img
                                                     src={meta.logo || league.emblem_local || ''}
                                                     alt={meta.title}
-                                                    className="w-full h-full object-contain filter drop-shadow-md"
+                                                    className="w-full h-full object-contain"
                                                 />
                                             </div>
                                             <div className="flex flex-col">

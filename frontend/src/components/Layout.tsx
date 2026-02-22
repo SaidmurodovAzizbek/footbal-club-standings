@@ -1,27 +1,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Trophy, Calendar, Sun, Moon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Home, Trophy, Calendar, Users } from 'lucide-react';
 
 const Layout = () => {
-    const [darkMode, setDarkMode] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('theme') === 'dark' ||
-                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        }
-        return false;
-    });
-
     const location = useLocation();
-
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [darkMode]);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200 flex flex-col">
@@ -41,6 +22,10 @@ const Layout = () => {
                             <Home className="w-4 h-4" />
                             <span>Bosh sahifa</span>
                         </Link>
+                        <Link to="/clubs" className={`px-4 py-2 rounded-md transition-colors flex items-center space-x-2 text-sm font-medium ${location.pathname.startsWith('/clubs') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
+                            <Users className="w-4 h-4" />
+                            <span>Jamoalar</span>
+                        </Link>
                         <Link to="/matches" className={`px-4 py-2 rounded-md transition-colors flex items-center space-x-2 text-sm font-medium ${location.pathname.startsWith('/matches') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
                             <Calendar className="w-4 h-4" />
                             <span>O'yinlar</span>
@@ -48,13 +33,7 @@ const Layout = () => {
                     </nav>
 
                     <div className="flex items-center space-x-4">
-                        <button
-                            onClick={() => setDarkMode(!darkMode)}
-                            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
-                            aria-label="Toggle Dark Mode"
-                        >
-                            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        </button>
+                        {/* Actions can be added here */}
                     </div>
                 </div>
             </header>

@@ -118,10 +118,27 @@ const LeagueDetails = () => {
                             {desc}
                         </p>
 
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                        {/* Dates repositioned to top right corner on desktop, inline elsewhere */}
+                        <div className="absolute top-4 right-4 md:top-6 md:right-6 hidden md:flex flex-col gap-2">
+                            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium text-white border border-white/20 shadow-lg">
+                                <CalendarIcon className="w-4 h-4 text-emerald-400" />
+                                <span>Boshlanishi: {league.season_start}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium text-white border border-white/20 shadow-lg">
+                                <CalendarIcon className="w-4 h-4 text-red-400" />
+                                <span>Tugashi: {league.season_end}</span>
+                            </div>
+                        </div>
+
+                        {/* Mobile visible dates */}
+                        <div className="flex md:hidden flex-wrap items-center justify-center gap-4 mt-6">
                             <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700/50 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
                                 <CalendarIcon className="w-4 h-4 text-emerald-500" />
-                                <span>{league.season_start.split('-')[0]}/{league.season_end.split('-')[0]} Mavsum</span>
+                                <span>Boshlash: {league.season_start}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700/50 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                <CalendarIcon className="w-4 h-4 text-red-500" />
+                                <span>Tugash: {league.season_end}</span>
                             </div>
                         </div>
                     </div>

@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import LeagueDetails from './pages/LeagueDetails';
 import ClubDetails from './pages/ClubDetails';
+import Clubs from './pages/Clubs';
 import Matches from './pages/Matches';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="league/:id" element={<LeagueDetails />} />
+        <Route path="clubs" element={<Clubs />} />
         <Route path="club/:id" element={<ClubDetails />} />
         <Route path="matches" element={<Matches />} />
       </Route>

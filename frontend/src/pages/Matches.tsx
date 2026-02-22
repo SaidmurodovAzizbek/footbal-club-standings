@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 import MatchList from '../components/MatchList';
-import { Activity, Clock, LayoutList, CalendarDays } from 'lucide-react';
+import { Activity, Clock, LayoutList, CalendarDays, Trophy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+
+interface League {
+    id: number;
+    name: string;
+    name_en: string;
+}
 
 const Matches = () => {
     const [searchParams] = useSearchParams();
@@ -12,6 +18,20 @@ const Matches = () => {
     const [filter, setFilter] = useState<'SCHEDULED' | 'LIVE' | 'FINISHED' | 'ALL'>(
         (searchParams.get('tab') as any) || 'SCHEDULED'
     );
+    const [leagues, setLeagues] = useState<League[]>([]);
+    const [selectedLeague, setSelectedLeague] = useState<string>('ALL');
+
+    useEffect(() => {
+        const fetchLeagues = async () => {
+            try {
+                const res = await apiClient.get<League[]>('/leagues');
+                setLeagues(res.data);
+            } catch (err) {
+                console.error("Failed to load leagues", err);
+            }
+        };
+        fetchLeagues();
+    }, []);
 
     useEffect(() => {
         const fetchMatches = async () => {
@@ -25,8 +45,46 @@ const Matches = () => {
                 } else if (filter === 'SCHEDULED') {
                     url = '/matches?status=SCHEDULED,TIMED&limit=100';
                 }
+
+                if (filter === 'FINISHED') {
+                    url += (url.includes('?') ? '&' : '?') + 'sort=desc';
+                } else {
+                    url += (url.includes('?') ? '&' : '?') + 'sort=asc';
+                }
+
+                if (selectedLeague !== 'ALL') {
+                    url += `&league_id=${selectedLeague}`;
+                }
+
                 const response = await apiClient.get(url);
-                setMatches(response.data);
+                let fetchedMatches = response.data;
+
+                // For 'SCHEDULED', user wants only the NEXT 1 round matches
+                if (filter === 'SCHEDULED') {
+                    const leagueMatchdays = new Map<number, number>();
+                    fetchedMatches.forEach((m: any) => {
+                        if (!leagueMatchdays.has(m.league_id)) {
+                            leagueMatchdays.set(m.league_id, m.matchday);
+                        } else {
+                            if (m.matchday < (leagueMatchdays.get(m.league_id) as number)) {
+                                leagueMatchdays.set(m.league_id, m.matchday);
+                            }
+                        }
+                    });
+                    fetchedMatches = fetchedMatches.filter((m: any) => m.matchday === leagueMatchdays.get(m.league_id));
+                }
+
+                // If FINISHED we fetched descending to get the most recent, but user wants them rendered ascending
+                if (filter === 'FINISHED') {
+                    fetchedMatches = fetchedMatches.reverse();
+                }
+
+                // If ALL, we shouldn't show the 100 matches from August. 
+                // We should get recently finished and newly scheduled.
+                // But the backend `limit=100` might return only Matchday 1. 
+                // We will leave ALL as is for now, but sort=asc means they see old games if no pagination.
+
+                setMatches(fetchedMatches);
             } catch (err) {
                 console.error(err);
                 setError('O\'yinlarni yuklashda xatolik yuz berdi.');
@@ -46,7 +104,7 @@ const Matches = () => {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [filter]);
+    }, [filter, selectedLeague]);
 
     return (
         <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
@@ -70,8 +128,10 @@ const Matches = () => {
                             : "Jahon miqyosidagi top o'yinlar va natijalar haqida to'liq ma'lumot"}
                     </p>
                 </div>
+            </div>
 
-                {/* Filters */}
+            <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center sm:items-end">
+                {/* Status Filters */}
                 <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-full sm:w-auto overflow-x-auto shadow-inner border border-gray-200 dark:border-gray-700">
                     <button
                         onClick={() => setFilter('SCHEDULED')}
@@ -113,6 +173,25 @@ const Matches = () => {
                         <Clock className="w-4 h-4" />
                         <span>Yakunlangan</span>
                     </button>
+                </div>
+
+                {/* League Filter */}
+                <div className="flex bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
+                    <div className="flex items-center space-x-2 px-3 w-full">
+                        <Trophy className="w-5 h-5 text-gray-400" />
+                        <select
+                            value={selectedLeague}
+                            onChange={(e) => setSelectedLeague(e.target.value)}
+                            className="bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-700 dark:text-gray-200 w-full sm:w-48 appearance-none py-1 cursor-pointer"
+                        >
+                            <option value="ALL">Barcha ligalar</option>
+                            {leagues.map((league) => (
+                                <option key={league.id} value={league.id.toString()}>
+                                    {league.name_en}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
 

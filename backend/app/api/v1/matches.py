@@ -29,6 +29,7 @@ async def get_matches(
     matchday: Optional[int] = Query(None, description="Matchday number"),
     status: Optional[str] = Query(None, description="Filter by match status: SCHEDULED, IN_PLAY, FINISHED"),
     club_id: Optional[int] = Query(None, description="Get games participated by club"),
+    sort: str = Query("asc", description="Sort order: 'asc' or 'desc'"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -52,9 +53,13 @@ async def get_matches(
     if matchday is not None:
         query = query.where(Match.matchday == matchday)
     if status:
-        query = query.where(Match.status == status.upper())
+        statuses = [s.strip().upper() for s in status.split(',')]
+        query = query.where(Match.status.in_(statuses))
 
-    query = query.order_by(desc(Match.utc_date)).offset(skip).limit(limit)
+    if sort == "desc":
+        query = query.order_by(Match.utc_date.desc()).offset(skip).limit(limit)
+    else:
+        query = query.order_by(Match.utc_date.asc()).offset(skip).limit(limit)
 
     result = await db.execute(query)
     matches = result.scalars().all()
@@ -64,6 +69,7 @@ async def get_matches(
 
 @router.get("/live", response_model=List[MatchResponse], summary="Live matches")
 async def get_live_matches(
+    league_id: Optional[int] = Query(None, description="Filter by league"),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -77,6 +83,10 @@ async def get_live_matches(
         )
         .where(Match.status.in_(["IN_PLAY", "PAUSED"]))
     )
+    
+    if league_id is not None:
+        query = query.where(Match.league_id == league_id)
+        
     result = await db.execute(query)
     matches = result.scalars().all()
 
