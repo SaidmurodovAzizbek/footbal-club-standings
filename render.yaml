@@ -8,6 +8,8 @@ services:
     envVars:
       - key: APP_ENV
         value: production
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: SUPABASE_DB_URL
         sync: false
       - key: UPSTASH_REDIS_URL
