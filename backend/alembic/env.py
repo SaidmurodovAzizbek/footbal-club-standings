@@ -7,15 +7,17 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 # App imports
+# App imports
 from app.core.config import settings
+from app.core.database import get_database_url
 from app.models.base import Base
 from app.models import League, Club, Match, Standing  # noqa: F401
 
 # Alembic Config object
 config = context.config
 
-# Database URL ni sozlamalardan olish
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Database URL ni sozlamalardan (Supabase bo'lsa uni) olish
+config.set_main_option("sqlalchemy.url", get_database_url())
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
