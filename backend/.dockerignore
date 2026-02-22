@@ -1,0 +1,9 @@
+venv/
+.env
+__pycache__/
+*.pyc
+fcs.db
+.git/
+media/
+.pytest_cache/
+alembic/versions/*.pyc

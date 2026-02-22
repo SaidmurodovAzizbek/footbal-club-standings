@@ -14,9 +14,11 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./fcs.db"
+    SUPABASE_DB_URL: str | None = None
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
+    UPSTASH_REDIS_URL: str | None = None
 
     # Football-Data.org API
     FOOTBALL_API_KEY: str = "your_api_key_here"

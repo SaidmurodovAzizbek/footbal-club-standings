@@ -57,3 +57,4 @@ class LeagueListResponse(BaseModel):
     country: str
     emblem_local: Optional[str] = None
     is_active: bool
+    current_matchday: Optional[int] = None

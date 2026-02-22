@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface Standing {
     position: number;
@@ -31,6 +32,17 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ standings }) => {
         }
     };
 
+    const getFormArrow = (form: string | null) => {
+        if (!form) return null;
+        // The last character in the form string represents the most recent match
+        const parts = form.split(',');
+        const lastMatch = parts[parts.length - 1]?.trim();
+
+        if (lastMatch === 'W') return <span title="Ko'tarildi" className="inline"><TrendingUp className="w-3 h-3 text-emerald-500 inline ml-1" /></span>;
+        if (lastMatch === 'L') return <span title="Tushdi" className="inline"><TrendingDown className="w-3 h-3 text-red-500 inline ml-1" /></span>;
+        return <span title="O'zgarmadi" className="inline"><Minus className="w-3 h-3 text-gray-400 inline ml-1" /></span>;
+    };
+
     return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
@@ -51,8 +63,9 @@ const StandingsTable: React.FC<StandingsTableProps> = ({ standings }) => {
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {standings.map((team) => (
                             <tr key={team.position} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td className="px-4 py-3 text-center font-medium text-gray-900 dark:text-white">
-                                    {team.position}
+                                <td className="px-4 py-3 text-center font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                    <span className="inline-block w-4 text-center">{team.position}</span>
+                                    {getFormArrow(team.form)}
                                 </td>
                                 <td className="px-4 py-3">
                                     <Link to={`/club/${team.club_id}`} className="flex items-center space-x-3 group cursor-pointer block">

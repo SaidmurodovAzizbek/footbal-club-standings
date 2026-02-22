@@ -11,6 +11,11 @@ from app.core.config import settings
 from app.core.security import limiter
 from app.core.scheduler import create_scheduler
 from app.api.v1.router import api_v1_router
+from app.core.database import engine
+
+from sqladmin import Admin
+from app.admin.auth import authentication_backend
+from app.admin.views import LeagueAdmin, ClubAdmin, MatchAdmin, StandingAdmin
 
 # Configure logging
 logging.basicConfig(
@@ -65,6 +70,19 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# === ADMIN PANEL ===
+admin = Admin(
+    app, 
+    engine, 
+    authentication_backend=authentication_backend, 
+    base_url="/referee",
+    title="FCS Admin Panel"
+)
+admin.add_view(LeagueAdmin)
+admin.add_view(ClubAdmin)
+admin.add_view(MatchAdmin)
+admin.add_view(StandingAdmin)
 
 # === MIDDLEWARE ===
 
