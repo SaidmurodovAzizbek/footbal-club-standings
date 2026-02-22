@@ -13,4 +13,4 @@ services:
       - key: UPSTASH_REDIS_URL
         sync: false
       - key: FOOTBALL_API_KEY
-        sync: ae68b3b1d55f46d9a8372b4366725ff8
+        sync: false
