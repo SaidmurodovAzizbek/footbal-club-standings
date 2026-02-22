@@ -24,13 +24,17 @@ class Settings(BaseSettings):
     FOOTBALL_API_KEY: str = "your_api_key_here"
     FOOTBALL_API_BASE_URL: str = "https://api.football-data.org/v4"
 
-    # CORS
-    CORS_ORIGINS: str = '["http://localhost:3000","http://localhost:5173"]'
+    # CORS - Ruxsat etilgan domenlar (Vercel va h.k)
+    CORS_ORIGINS: str = '["*"]'
 
     @property
     def cors_origins_list(self) -> List[str]:
         """CORS origins ro'yxatini qaytaradi."""
-        return json.loads(self.CORS_ORIGINS)
+        try:
+            origins = json.loads(self.CORS_ORIGINS)
+            return origins if isinstance(origins, list) else ["*"]
+        except Exception:
+            return ["*"]
 
     # Rate Limiting
     RATE_LIMIT: str = "100/minute"
