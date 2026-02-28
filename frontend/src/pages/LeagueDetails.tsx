@@ -30,30 +30,12 @@ const LeagueDetails = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Fetch League info
-                // Note: The API might just return the list or I need a specific endpoint.
-                // Based on explore: /leagues/{id} wasn't explicitly seen but likely exists or I can filter from list.
-                // Actually I should check if /leagues/{id} exists.
-                // The implementation plan assumed services but I'm doing direct calls for MVP speed.
-
-                // Let's assume /api/v1/leagues/{id} exists (standard REST). 
-                // If not, I'll fetch list and find (fallback).
-
-                // But the previous list_dir of schemas showed LeagueResponse has id.
-                // I'll try to fetch specific league. If not available, I might need to implement it in backend or use what I have.
-                // Wait, the backend conversation summary mentioned "API endpoints".
-                // Let's check `backend/app/api/endpoints/leagues.py` if I could.
-                // For now, I'll try /leagues/{id}.
-
                 const leagueRes = await apiClient.get<LeagueInfo>(`/leagues/${id}`);
                 setLeague(leagueRes.data);
 
-                // Fetch Standings
                 const standingsRes = await apiClient.get(`/standings/league/${id}`);
                 setStandings(standingsRes.data);
 
-                // Fetch Matches
-                // I need to filter matches by league.
                 const matchesRes = await apiClient.get(`/matches?league_id=${id}`);
                 setMatches(matchesRes.data);
 
@@ -85,7 +67,6 @@ const LeagueDetails = () => {
 
     return (
         <div>
-            {/* Premium League Header */}
             <div className="relative rounded-3xl shadow-2xl mb-8 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 {/* Background Parallax Image */}
                 {meta && (
@@ -96,7 +77,6 @@ const LeagueDetails = () => {
                 )}
 
                 <div className="relative z-10 p-6 md:p-10 flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-                    {/* Glassmorphism Logo Container */}
                     <div className="w-32 h-32 flex-shrink-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl p-4 rounded-2xl border border-gray-200 dark:border-gray-600 shadow-xl flex items-center justify-center relative group">
                         <div className="absolute inset-0 border-2 border-emerald-400 rounded-2xl opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100 transition-all duration-300"></div>
                         {logo ? (
@@ -144,7 +124,6 @@ const LeagueDetails = () => {
                     </div>
                 </div>
 
-                {/* Glassy Tabs Container */}
                 <div className="relative z-10 px-6 md:px-10 border-t border-gray-200 dark:border-gray-700 flex space-x-2 bg-gray-50/50 dark:bg-gray-900/20 backdrop-blur-sm pt-4">
                     <button
                         onClick={() => setActiveTab('standings')}
@@ -163,7 +142,6 @@ const LeagueDetails = () => {
                 </div>
             </div>
 
-            {/* Content */}
             <div className="transition-all duration-300">
                 {activeTab === 'standings' ? (
                     <StandingsTable standings={standings} />

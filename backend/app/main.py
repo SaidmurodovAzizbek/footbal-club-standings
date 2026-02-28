@@ -17,7 +17,7 @@ from sqladmin import Admin
 from app.admin.auth import authentication_backend
 from app.admin.views import LeagueAdmin, ClubAdmin, MatchAdmin, StandingAdmin
 
-# Configure logging
+
 logging.basicConfig(
     level=logging.INFO if settings.DEBUG else logging.WARNING,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -30,18 +30,18 @@ async def lifespan(app: FastAPI):
     """
     Application lifecycle - startup and shutdown events.
     """
-    # === STARTUP ===
+
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}...")
     logger.info(f"Environment: {settings.APP_ENV}")
     logger.info(f"Database: {settings.DATABASE_URL[:30]}...")
 
-    # Create media directories
+
     os.makedirs(settings.MEDIA_DIR, exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_DIR, "crests"), exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_DIR, "emblems"), exist_ok=True)
     os.makedirs(os.path.join(settings.MEDIA_DIR, "stadiums"), exist_ok=True)
 
-    # Initialize scheduler
+
     scheduler = create_scheduler()
     scheduler.start()
     app.state.scheduler = scheduler
@@ -51,13 +51,13 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # === SHUTDOWN ===
+
     logger.info("Stopping server...")
     if hasattr(app.state, "scheduler"):
         app.state.scheduler.shutdown()
         logger.info("APScheduler stopped.")
 
-# Create FastAPI app
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
@@ -71,7 +71,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# === ADMIN PANEL ===
+
 admin = Admin(
     app, 
     engine, 
@@ -84,9 +84,9 @@ admin.add_view(ClubAdmin)
 admin.add_view(MatchAdmin)
 admin.add_view(StandingAdmin)
 
-# === MIDDLEWARE ===
 
-# CORS
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -95,21 +95,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rate Limiting
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Static files (media: logos, stadium images)
+
 if os.path.exists(settings.MEDIA_DIR):
     app.mount("/media", StaticFiles(directory=settings.MEDIA_DIR), name="media")
 
-# === ROUTES ===
 
-# Mount API v1 router
+
+
 app.include_router(api_v1_router)
 
 
-# Welcome endpoint
+
 @app.get("/", tags=["Root"])
 async def root():
     """API welcome page."""

@@ -67,3 +67,4 @@ class ClubListResponse(BaseModel):
     short_name: Optional[str] = None
     tla: Optional[str] = None
     crest_local: Optional[str] = None
+    crest_url: Optional[str] = None

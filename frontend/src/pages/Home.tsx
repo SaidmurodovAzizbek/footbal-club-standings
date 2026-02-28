@@ -76,7 +76,6 @@ const Home = () => {
     return (
         <div className="space-y-12">
 
-            {/* HERO SECTION - README STYLE */}
             <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white shadow-2xl border border-gray-700">
                 {/* Decorative background glow */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
@@ -138,7 +137,6 @@ const Home = () => {
                 </section>
             )}
 
-            {/* LEAGUES SECTION */}
             <section id="leagues" className="scroll-mt-24">
                 <div className="mb-6 flex items-center space-x-3">
                     <Trophy className="w-8 h-8 text-emerald-500" />
@@ -160,29 +158,19 @@ const Home = () => {
                                 to={`/league/${league.id}`}
                                 className="group relative w-full h-[300px] sm:h-[250px] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 flex flex-col justify-end"
                             >
-                                {/* Background Image with Parallax subtle effect on hover */}
-                                <div className="absolute inset-0 w-full h-full bg-gray-900">
-                                    <img
-                                        src={meta.bgImage}
-                                        alt={meta.title}
-                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out opacity-40 group-hover:opacity-50"
-                                    />
+                                {/* Gradients instead of image */}
+                                <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-900 dark:to-black border border-gray-200 dark:border-gray-800 rounded-3xl">
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/30 to-teal-900/10 opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     {/* Overlay Gradient for readability */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f18] via-[#0a0f18]/80 to-transparent"></div>
-                                    <div className="absolute inset-0 bg-emerald-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f18] via-transparent to-transparent opacity-90"></div>
+                                    <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
                                 </div>
-
-                                {/* Content overlaid on image */}
                                 <div className="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 h-full">
                                     <div className="flex-1">
                                         <div className="flex items-center space-x-4 mb-3">
-                                            {/* League Logo isolated within a white rounded container for visibility */}
-                                            <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-xl flex items-center justify-center group-hover:-translate-y-1 transition-transform">
-                                                <img
-                                                    src={meta.logo || league.emblem_local || ''}
-                                                    alt={meta.title}
-                                                    className="w-full h-full object-contain"
-                                                />
+                                            {/* League Icon isolated within a glassy rounded container for visibility */}
+                                            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/10 shadow-xl flex items-center justify-center group-hover:-translate-y-1 transition-all duration-300">
+                                                <Trophy className="w-8 h-8 text-emerald-400 group-hover:scale-110 transition-transform duration-300" />
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider mb-1 flex items-center space-x-1">

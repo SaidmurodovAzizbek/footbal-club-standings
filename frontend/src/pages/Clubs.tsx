@@ -83,9 +83,9 @@ const Clubs = () => {
                             onChange={(e) => setSelectedLeague(e.target.value)}
                             className="bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-700 dark:text-gray-200 w-full sm:w-48 appearance-none py-1 cursor-pointer"
                         >
-                            <option value="ALL">Barcha ligalar</option>
+                            <option value="ALL" className="dark:bg-gray-800">Barcha ligalar</option>
                             {leagues.map((league) => (
-                                <option key={league.id} value={league.id.toString()}>
+                                <option key={league.id} value={league.id.toString()} className="dark:bg-gray-800">
                                     {league.name_en}
                                 </option>
                             ))}
